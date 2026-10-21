@@ -1,0 +1,9 @@
+const sections=[...document.querySelectorAll('main>section')];let current=0;
+const page=document.querySelector('#page');
+function go(index){sections[Math.max(0,Math.min(sections.length-1,index))].scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}
+const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){current=sections.indexOf(entry.target);page.textContent=`${String(current+1).padStart(2,'0')} / ${String(sections.length).padStart(2,'0')}`;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+entry.target.id));}}},{rootMargin:'-15% 0px -55% 0px',threshold:0});sections.forEach(s=>observer.observe(s));
+document.querySelector('#prev').addEventListener('click',()=>go(current-1));document.querySelector('#next').addEventListener('click',()=>go(current+1));
+const dialog=document.querySelector('#lightbox');
+document.addEventListener('keydown',e=>{if(dialog.open||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(['ArrowRight','PageDown'].includes(e.key)){e.preventDefault();go(current+1)}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(current-1)}});
+document.querySelector('#fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch{document.querySelector('#fullscreen').title='Usa la opción de pantalla completa del navegador'}});
+document.querySelectorAll('[data-image]').forEach(button=>button.addEventListener('click',()=>{dialog.querySelector('img').src=button.dataset.image;dialog.showModal()}));document.querySelector('#close').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
